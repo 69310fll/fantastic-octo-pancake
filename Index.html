@@ -1,0 +1,2248 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Robotics After School Manager</title>
+
+    <!-- Styles (unchanged UI, themed) -->
+    <style>
+      :root {
+        --bg-gradient: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
+        --card-bg: #ffffff;
+        --card-border: #f0f0f0;
+        --accent-1: #2563eb;
+        --accent-2: #f97316;
+        --text-main: #333333;
+        --text-muted: #666666;
+        --nav-glass: rgba(255, 255, 255, 0.15);
+        --nav-text: #ffffff;
+        --chip-bg: #dbeafe;
+        --chip-text: #2563eb;
+      }
+
+      body.light-theme {
+        --bg-gradient: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        --card-bg: #ffffff;
+        --card-border: #e5e7eb;
+        --accent-1: #2563eb;
+        --accent-2: #16a34a;
+        --text-main: #111827;
+        --text-muted: #4b5563;
+        --nav-glass: rgba(255, 255, 255, 0.9);
+        --nav-text: #111827;
+        --chip-bg: #e0f2fe;
+        --chip-text: #0369a1;
+      }
+
+      body.dark-theme {
+        --bg-gradient: radial-gradient(circle at top, #1f2933 0%, #020617 45%, #000000 100%);
+        --card-bg: #0f172a;
+        --card-border: #1f2937;
+        --accent-1: #60a5fa;
+        --accent-2: #f97316;
+        --text-main: #e5e7eb;
+        --text-muted: #9ca3af;
+        --nav-glass: rgba(15, 23, 42, 0.85);
+        --nav-text: #e5e7eb;
+        --chip-bg: #1e293b;
+        --chip-text: #93c5fd;
+      }
+
+      body {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: var(--bg-gradient);
+        min-height: 100vh;
+        width: 100%;
+        color: var(--text-main);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      .app-container {
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .auth-screen {
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3%;
+      }
+
+      .auth-card {
+        background: var(--card-bg);
+        border-radius: 24px;
+        padding: 3%;
+        max-width: 900px;
+        width: 100%;
+        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+        animation: slideUp 0.5s ease-out;
+        border: 1px solid var(--card-border);
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .auth-header {
+        text-align: center;
+        margin-bottom: 3%;
+        padding-bottom: 2%;
+        border-bottom: 3px solid var(--card-border);
+      }
+
+      .auth-header h1 {
+        margin: 0 0 1% 0;
+        font-size: 2.5em;
+        color: var(--accent-1);
+        font-weight: 800;
+      }
+
+      .auth-header p {
+        margin: 0;
+        font-size: 1.1em;
+        color: var(--text-muted);
+      }
+
+      .member-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+        margin-top: 2%;
+      }
+
+      .member-select-card {
+        background: linear-gradient(135deg, #f8f9ff 0%, #e8f0fe 100%);
+        border: 3px solid #e0e7ff;
+        border-radius: 16px;
+        padding: 3%;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: all 0.3s;
+        cursor: pointer;
+      }
+
+      .member-select-card:hover {
+        border-color: var(--accent-1);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(37, 99, 235, 0.4);
+      }
+
+      .member-avatar-large {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8em;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+
+      .member-select-info h3 {
+        margin: 0 0 5px 0;
+        font-size: 1.3em;
+        color: var(--text-main);
+        font-weight: 700;
+      }
+
+      .member-select-info p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.9em;
+      }
+
+      .top-nav {
+        background: var(--nav-glass);
+        backdrop-filter: blur(10px);
+        padding: 1.5% 3%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        color: var(--nav-text);
+      }
+
+      .logo-section {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .logo-section h1 {
+        margin: 0;
+        color: var(--nav-text);
+        font-size: 1.8em;
+        font-weight: 800;
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        color: var(--nav-text);
+      }
+
+      .user-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: white;
+        color: var(--accent-1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.2em;
+      }
+
+      .user-name {
+        font-weight: 600;
+        font-size: 1.1em;
+      }
+
+      .logout-btn {
+        background: rgba(255, 255, 255, 0.2);
+        color: var(--nav-text);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s;
+        cursor: pointer;
+      }
+
+      .logout-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .nav-btn {
+        background: rgba(255, 255, 255, 0.2);
+        color: var(--nav-text);
+        border: 2px solid transparent;
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1em;
+        transition: all 0.3s;
+        cursor: pointer;
+      }
+
+      .nav-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+      }
+
+      .nav-btn.active {
+        background: white;
+        color: var(--accent-1);
+        border-color: white;
+      }
+
+      .main-content {
+        flex: 1;
+        padding: 2% 3%;
+        overflow-y: auto;
+      }
+
+      .page {
+        display: none;
+        animation: fadeIn 0.4s ease-out;
+      }
+
+      .page.active {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .content-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 3%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        margin-bottom: 2%;
+        border: 1px solid var(--card-border);
+      }
+
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 3%;
+        padding-bottom: 2%;
+        border-bottom: 3px solid var(--card-border);
+      }
+
+      .page-header h2 {
+        margin: 0;
+        font-size: 2.2em;
+        color: var(--text-main);
+        font-weight: 800;
+      }
+
+      .action-btn {
+        background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
+        color: white;
+        border: none;
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1.1em;
+        transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        cursor: pointer;
+      }
+
+      .action-btn:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(249, 115, 22, 0.5);
+      }
+
+      .action-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .form-group {
+        margin-bottom: 3%;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 1%;
+        font-weight: 700;
+        color: var(--text-main);
+        font-size: 1em;
+      }
+
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+        width: 100%;
+        padding: 14px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1em;
+        font-family: inherit;
+        transition: border-color 0.3s;
+        background: var(--card-bg);
+        color: var(--text-main);
+      }
+
+      .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: var(--accent-1);
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 3%;
+      }
+
+      .stat-card {
+        background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
+        color: white;
+        padding: 3%;
+        border-radius: 16px;
+        text-align: center;
+        transition: all 0.3s;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(249, 115, 22, 0.5);
+      }
+
+      .stat-number {
+        font-size: 3em;
+        font-weight: 800;
+        margin: 0;
+      }
+
+      .stat-label {
+        font-size: 1em;
+        opacity: 0.9;
+        margin-top: 1%;
+      }
+
+      .check-in-list {
+        display: grid;
+        gap: 15px;
+      }
+
+      .check-in-card {
+        background: linear-gradient(135deg, #f8f9ff 0%, #e8f0fe 100%);
+        border: 2px solid #e0e7ff;
+        border-radius: 16px;
+        padding: 2%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s;
+      }
+
+      .check-in-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 20px rgba(37, 99, 235, 0.3);
+      }
+
+      .check-in-info {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5em;
+        font-weight: 700;
+      }
+
+      .check-in-details h3 {
+        margin: 0 0 5px 0;
+        font-size: 1.3em;
+        color: var(--text-main);
+      }
+
+      .check-in-details p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.95em;
+      }
+
+      .check-in-meta {
+        text-align: right;
+        color: #888;
+        font-size: 0.9em;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 5% 0;
+        color: #999;
+      }
+
+      .empty-state h3 {
+        font-size: 1.5em;
+        margin: 0 0 1% 0;
+      }
+
+      .jobs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 2%;
+      }
+
+      .job-card {
+        background: var(--card-bg);
+        border: 3px solid #e0e0e0;
+        border-radius: 16px;
+        padding: 2.5%;
+        transition: all 0.3s;
+        position: relative;
+        cursor: pointer;
+      }
+
+      .job-card:hover {
+        border-color: var(--accent-1);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+      }
+
+      .job-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 2%;
+      }
+
+      .job-title {
+        font-size: 1.4em;
+        font-weight: 700;
+        color: var(--text-main);
+        margin: 0;
+        flex: 1;
+        padding-right: 2%;
+      }
+
+      .job-status {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8em;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .status-todo {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .status-progress {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
+      .status-done {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      .job-priority {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.75em;
+        font-weight: 700;
+        margin-top: 2%;
+      }
+
+      .priority-high {
+        background: #fee;
+        color: #b91c1c;
+      }
+
+      .priority-medium {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .priority-low {
+        background: #e0f2fe;
+        color: #075985;
+      }
+
+      .job-description {
+        color: var(--text-muted);
+        margin: 2% 0;
+        line-height: 1.5;
+      }
+
+      .job-category {
+        display: inline-block;
+        background: #dbeafe;
+        color: #1e40af;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.85em;
+        font-weight: 600;
+        margin-top: 2%;
+      }
+
+      .job-progress {
+        margin-top: 2%;
+        padding-top: 2%;
+        border-top: 2px solid #f0f0f0;
+      }
+
+      .progress-label {
+        font-size: 0.85em;
+        color: #888;
+        font-weight: 600;
+        margin-bottom: 1%;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #e0e0e0;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent-1) 0%, var(--accent-2) 100%);
+        border-radius: 10px;
+        transition: width 0.3s;
+      }
+
+      .assigned-people {
+        margin-top: 2%;
+        padding-top: 2%;
+        border-top: 2px solid #f0f0f0;
+      }
+
+      .assigned-label {
+        font-size: 0.85em;
+        color: #888;
+        font-weight: 600;
+        margin-bottom: 1%;
+      }
+
+      .people-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .person-badge {
+        background: var(--accent-1);
+        color: white;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: 600;
+      }
+
+      .member-card {
+        background: var(--card-bg);
+        border: 2px solid #e0e0e0;
+        border-radius: 16px;
+        padding: 2.5%;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: all 0.3s;
+      }
+
+      .member-card:hover {
+        border-color: var(--accent-1);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+      }
+
+      .member-avatar {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2em;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+
+      .member-info {
+        flex: 1;
+      }
+
+      .member-name {
+        font-size: 1.4em;
+        font-weight: 700;
+        color: var(--text-main);
+        margin: 0 0 5px 0;
+      }
+
+      .member-role {
+        display: inline-block;
+        padding: 4px 12px;
+        background: var(--chip-bg);
+        color: var(--chip-text);
+        border-radius: 12px;
+        font-size: 0.85em;
+        font-weight: 600;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+        padding: 2%;
+        overflow-y: auto;
+      }
+
+      .modal.show {
+        display: flex;
+      }
+
+      .modal-content {
+        background: var(--card-bg);
+        padding: 3%;
+        border-radius: 24px;
+        width: 100%;
+        max-width: 700px;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+        max-height: 90vh;
+        overflow-y: auto;
+        border: 1px solid var(--card-border);
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 3%;
+        padding-bottom: 2%;
+        border-bottom: 3px solid var(--card-border);
+      }
+
+      .modal-header h2 {
+        margin: 0;
+        color: var(--text-main);
+        font-size: 2em;
+        font-weight: 800;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 2em;
+        color: #999;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.3s;
+        cursor: pointer;
+      }
+
+      .close-btn:hover {
+        background: #f0f0f0;
+        color: #333;
+      }
+
+      .checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 12px;
+        margin-top: 2%;
+      }
+
+      .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        background: #f8f9ff;
+        border: 2px solid #e0e7ff;
+        border-radius: 10px;
+        transition: all 0.3s;
+      }
+
+      .checkbox-item:hover {
+        background: #dbeafe;
+        border-color: var(--accent-1);
+      }
+
+      .checkbox-item input[type='checkbox'] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+      }
+
+      .checkbox-item label {
+        margin: 0;
+        font-weight: 600;
+        font-size: 0.95em;
+        cursor: pointer;
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 3%;
+      }
+
+      .btn {
+        flex: 1;
+        padding: 16px;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1.1em;
+        transition: all 0.3s;
+        cursor: pointer;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
+        color: white;
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(249, 115, 22, 0.5);
+      }
+
+      .btn-secondary {
+        background: #e0e0e0;
+        color: #333;
+      }
+
+      .btn-secondary:hover {
+        background: #d0d0d0;
+      }
+
+      .btn-danger {
+        background: #ef4444;
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: #dc2626;
+      }
+
+      .delete-section {
+        margin-top: 3%;
+        padding-top: 3%;
+        border-top: 2px solid #fee;
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 3%;
+        right: 3%;
+        background: #333;
+        color: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        display: none;
+        z-index: 2000;
+        font-size: 1em;
+        font-weight: 600;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .toast.show {
+        display: block;
+        animation: slideInToast 0.3s ease-out;
+      }
+
+      @keyframes slideInToast {
+        from {
+          transform: translateX(120%);
+        }
+        to {
+          transform: translateX(0);
+        }
+      }
+
+      .filter-section {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 2%;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .filter-label {
+        font-weight: 700;
+        color: #555;
+      }
+
+      .filter-btn {
+        padding: 10px 20px;
+        border: 2px solid #e0e0e0;
+        background: white;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s;
+        font-size: 0.95em;
+        cursor: pointer;
+      }
+
+      .filter-btn.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+      }
+
+      .filter-btn:hover {
+        border-color: #667eea;
+      }
+
+      .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+        margin-bottom: 3%;
+      }
+
+      .quick-action-card {
+        background: linear-gradient(135deg, #f8f9ff 0%, #e8f0fe 100%);
+        border: 2px solid #e0e7ff;
+        border-radius: 16px;
+        padding: 3%;
+        transition: all 0.3s;
+        text-align: center;
+        cursor: pointer;
+      }
+
+      .quick-action-card:hover {
+        border-color: #667eea;
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+      }
+
+      .quick-action-icon {
+        font-size: 3em;
+        margin-bottom: 2%;
+      }
+
+      .quick-action-title {
+        font-size: 1.2em;
+        font-weight: 700;
+        color: var(--text-main);
+        margin: 0 0 1% 0;
+      }
+
+      .quick-action-desc {
+        color: var(--text-muted);
+        font-size: 0.9em;
+        margin: 0;
+      }
+
+      .top-right-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .icon-btn {
+        border-radius: 999px;
+        border: none;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 8px 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--nav-text);
+        font-weight: 600;
+        font-size: 0.9em;
+        transition: all 0.3s;
+      }
+      .icon-btn:hover {
+        background: rgba(255, 255, 255, 0.35);
+        transform: translateY(-1px);
+      }
+      .icon-btn span {
+        font-size: 1.2em;
+      }
+
+      @media (max-width: 768px) {
+        .member-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .jobs-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+    <style>
+      @view-transition {
+        navigation: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- AUTH SCREEN -->
+      <div id="authScreen" class="auth-screen">
+        <div class="auth-card">
+          <div class="auth-header">
+            <h1>🤖 Sign In</h1>
+            <p>Select your profile and enter your password</p>
+          </div>
+          <div class="member-grid" id="memberSelectGrid"></div>
+          <form id="passwordForm" style="margin-top: 20px;">
+            <div class="form-group">
+              <label for="selectedMemberName">Selected Profile</label>
+              <input type="text" id="selectedMemberName" readonly placeholder="Click a person above" />
+            </div>
+            <div class="form-group">
+              <label for="loginPassword">Password</label>
+              <input type="password" id="loginPassword" required placeholder="Enter password" />
+            </div>
+            <button type="submit" class="action-btn" style="width: 100%;">Sign In</button>
+          </form>
+          <div style="margin-top: 15px; text-align: right;">
+            <button
+              type="button"
+              id="adminLoginBtn"
+              style="background: none; border: none; color: #2563eb; font-weight: 600; cursor: pointer;"
+            >
+              Admin login →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN APP -->
+      <div id="mainApp" style="display: none; width: 100%; min-height: 100vh; flex-direction: column;">
+        <nav class="top-nav">
+          <div class="logo-section">
+            <h1>🤖 Robotics After School</h1>
+          </div>
+          <div class="top-right-controls">
+            <!-- Theme selector -->
+            <select id="themeSelect" class="icon-btn" style="padding: 8px 10px;">
+              <option value="default">🎨 Default</option>
+              <option value="light">☀️ Light</option>
+              <option value="dark">🌙 Dark</option>
+            </select>
+            <!-- Admin gear -->
+            <button id="adminPanelBtn" class="icon-btn" style="display: none;">
+              <span>⚙️</span> Admin
+            </button>
+            <div class="user-info">
+              <div class="user-avatar" id="userAvatar">?</div>
+              <div class="user-name" id="userName">User</div>
+              <button class="logout-btn" id="logoutBtn">Sign Out</button>
+            </div>
+          </div>
+        </nav>
+        <div style="display: flex; background: rgba(255, 255, 255, 0.1); padding: 1% 3%;">
+          <div class="nav-links">
+            <button class="nav-btn active" data-page="dashboard">📊 Dashboard</button>
+            <button class="nav-btn" data-page="check-in">✅ Check In</button>
+            <button class="nav-btn" data-page="jobs">🔧 Jobs</button>
+            <button class="nav-btn" data-page="team">👥 Team</button>
+            <button class="nav-btn" data-page="announcements">📢 Announcements</button>
+          </div>
+        </div>
+        <main class="main-content">
+          <!-- DASHBOARD -->
+          <div id="dashboard" class="page active">
+            <div class="content-card">
+              <div class="page-header">
+                <h2>🚀 Quick Actions</h2>
+              </div>
+              <div class="quick-actions">
+                <div class="quick-action-card" data-action="check-in">
+                  <div class="quick-action-icon">✅</div>
+                  <h3 class="quick-action-title">Check In</h3>
+                  <p class="quick-action-desc">Log your arrival &amp; activity</p>
+                </div>
+                <div class="quick-action-card" data-action="create-job">
+                  <div class="quick-action-icon">➕</div>
+                  <h3 class="quick-action-title">Create Job</h3>
+                  <p class="quick-action-desc">Add new task for team</p>
+                </div>
+                <div class="quick-action-card" data-action="view-team">
+                  <div class="quick-action-icon">👥</div>
+                  <h3 class="quick-action-title">View Team</h3>
+                  <p class="quick-action-desc">See all team members</p>
+                </div>
+              </div>
+            </div>
+            <div class="content-card">
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <div class="stat-number" id="statCheckedIn">0</div>
+                  <div class="stat-label">Checked In Today</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-number" id="statActiveJobs">0</div>
+                  <div class="stat-label">Active Jobs</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-number" id="statTotalMembers">11</div>
+                  <div class="stat-label">Team Members</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-number" id="statCompleted">0</div>
+                  <div class="stat-label">Completed Jobs</div>
+                </div>
+              </div>
+            </div>
+            <div class="content-card">
+              <div class="page-header">
+                <h2>📋 Recent Check-Ins</h2>
+              </div>
+              <div id="recentCheckIns"></div>
+            </div>
+            <div class="content-card">
+              <div class="page-header">
+                <h2>🔥 High Priority Jobs</h2>
+              </div>
+              <div id="priorityJobsList"></div>
+            </div>
+          </div>
+
+          <!-- CHECK-IN PAGE -->
+          <div id="check-in" class="page">
+            <div class="content-card">
+              <div class="page-header">
+                <h2>✅ Check In</h2>
+              </div>
+              <form id="checkInForm">
+                <div class="form-group">
+                  <label for="checkInActivity">What are you working on today? *</label>
+                  <select id="checkInActivity" required>
+                    <option value="">Select activity...</option>
+                    <option value="💻 Programming">💻 Programming</option>
+                    <option value="🔧 Building">🔧 Building</option>
+                    <option value="✏️ Design">✏️ Design</option>
+                    <option value="🧪 Testing">🧪 Testing</option>
+                    <option value="📝 Documentation">📝 Documentation</option>
+                    <option value="📋 Planning">📋 Planning</option>
+                    <option value="🎨 CAD Modeling">🎨 CAD Modeling</option>
+                    <option value="⚡ Wiring">⚡ Wiring</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="checkInTime">When are you leaving? *</label>
+                  <select id="checkInTime" required>
+                    <option value="">Select time...</option>
+                    <option value="4:30 PM">4:30 PM</option>
+                    <option value="5:00 PM">5:00 PM</option>
+                    <option value="5:15 PM">5:15 PM</option>
+                    <option value="5:30 PM">5:30 PM</option>
+                    <option value="6:00 PM">6:00 PM</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="checkInNotes">Additional Notes (Optional)</label>
+                  <textarea id="checkInNotes" placeholder="Any goals, questions, or notes for today..."></textarea>
+                </div>
+                <button type="submit" class="action-btn" style="width: 100%;">✓ Check In Now</button>
+              </form>
+            </div>
+            <div class="content-card" style="margin-top: 2%;">
+              <div class="page-header">
+                <h2>Today's Check-Ins (Live)</h2>
+              </div>
+              <div id="todayCheckIns"></div>
+            </div>
+          </div>
+
+          <!-- JOBS PAGE -->
+          <div id="jobs" class="page">
+            <div class="content-card">
+              <div class="page-header">
+                <h2>🔧 Manage Jobs</h2>
+                <button class="action-btn" id="createJobBtn">+ Create New Job</button>
+              </div>
+              <div class="filter-section">
+                <span class="filter-label">Status:</span>
+                <button class="filter-btn active" data-filter="status" data-value="all">All</button>
+                <button class="filter-btn" data-filter="status" data-value="To Do">📋 To Do</button>
+                <button class="filter-btn" data-filter="status" data-value="In Progress">🔄 In Progress</button>
+                <button class="filter-btn" data-filter="status" data-value="Done">✅ Done</button>
+              </div>
+              <div class="filter-section">
+                <span class="filter-label">Priority:</span>
+                <button class="filter-btn active" data-filter="priority" data-value="all">All</button>
+                <button class="filter-btn" data-filter="priority" data-value="High">🔴 High</button>
+                <button class="filter-btn" data-filter="priority" data-value="Medium">🟡 Medium</button>
+                <button class="filter-btn" data-filter="priority" data-value="Low">🟢 Low</button>
+              </div>
+              <div class="filter-section">
+                <span class="filter-label">Category:</span>
+                <button class="filter-btn active" data-filter="category" data-value="all">All</button>
+                <button class="filter-btn" data-filter="category" data-value="Robot">🤖 Robot</button>
+                <button class="filter-btn" data-filter="category" data-value="Software">💻 Software</button>
+                <button class="filter-btn" data-filter="category" data-value="Documentation">📝 Docs</button>
+                <button class="filter-btn" data-filter="category" data-value="Other">📦 Other</button>
+              </div>
+              <div id="jobsContainer" class="jobs-grid"></div>
+            </div>
+          </div>
+
+          <!-- TEAM PAGE -->
+          <div id="team" class="page">
+            <div class="content-card">
+              <div class="page-header">
+                <h2>👥 Team Members</h2>
+              </div>
+              <div id="teamContainer" style="display: grid; gap: 15px;"></div>
+            </div>
+          </div>
+
+          <!-- ANNOUNCEMENTS PAGE -->
+          <div id="announcements" class="page">
+            <div class="content-card">
+              <div class="page-header">
+                <h2>📢 Team Announcements</h2>
+                <button class="action-btn" id="createAnnouncementBtn">+ New Announcement</button>
+              </div>
+              <div id="announcementsContainer"></div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- JOB MODAL -->
+    <div class="modal" id="jobModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="jobModalTitle">Create New Job</h2>
+          <button class="close-btn" id="closeJobModal">×</button>
+        </div>
+        <form id="jobForm">
+          <div class="form-group">
+            <label for="jobTitle">Job Title *</label>
+            <input type="text" id="jobTitle" required placeholder="e.g., Build Intake Mechanism" />
+          </div>
+          <div class="form-group">
+            <label for="jobDescription">Description *</label>
+            <textarea id="jobDescription" required placeholder="What needs to be done? Be specific..."></textarea>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2%;">
+            <div class="form-group">
+              <label for="jobStatus">Status *</label>
+              <select id="jobStatus" required>
+                <option value="To Do">📋 To Do</option>
+                <option value="In Progress">🔄 In Progress</option>
+                <option value="Done">✅ Done</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="jobPriority">Priority *</label>
+              <select id="jobPriority" required>
+                <option value="High">🔴 High</option>
+                <option value="Medium">🟡 Medium</option>
+                <option value="Low">🟢 Low</option>
+              </select>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2%;">
+            <div class="form-group">
+              <label for="jobCategory">Category *</label>
+              <select id="jobCategory" required>
+                <option value="Robot">🤖 Robot</option>
+                <option value="Software">💻 Software</option>
+                <option value="Documentation">📝 Documentation</option>
+                <option value="Other">📦 Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="jobProgress">Progress % *</label>
+              <input type="number" id="jobProgress" min="0" max="100" value="0" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="jobDueDate">Due Date (Optional)</label>
+            <input type="date" id="jobDueDate" />
+          </div>
+          <div class="form-group">
+            <label>Assign Team Members</label>
+            <div class="checkbox-group" id="assignPeopleList"></div>
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary" id="saveJobBtn">💾 Save Job</button>
+            <button type="button" class="btn btn-secondary" id="cancelJobBtn">Cancel</button>
+          </div>
+          <div class="delete-section" id="deleteJobSection" style="display: none;">
+            <button type="button" class="btn btn-danger" id="deleteJobBtn" style="width: 100%;">🗑️ Delete Job</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ANNOUNCEMENT MODAL -->
+    <div class="modal" id="announcementModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Create Announcement</h2>
+          <button class="close-btn" id="closeAnnouncementModal">×</button>
+        </div>
+        <form id="announcementForm">
+          <div class="form-group">
+            <label for="announcementTitle">Title *</label>
+            <input type="text" id="announcementTitle" required placeholder="e.g., Competition Next Week!" />
+          </div>
+          <div class="form-group">
+            <label for="announcementMessage">Message *</label>
+            <textarea id="announcementMessage" required placeholder="Share important information with the team..."></textarea>
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">📢 Post Announcement</button>
+            <button type="button" class="btn btn-secondary" id="cancelAnnouncementBtn">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ADMIN LOGIN MODAL -->
+    <div class="modal" id="adminLoginModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Admin Login</h2>
+          <button class="close-btn" id="closeAdminLoginModal">×</button>
+        </div>
+        <form id="adminLoginForm">
+          <div class="form-group">
+            <label for="adminUsername">Username</label>
+            <input type="text" id="adminUsername" value="admin" required />
+          </div>
+          <div class="form-group">
+            <label for="adminPassword">Password</label>
+            <input type="password" id="adminPassword" required placeholder="Enter admin password" />
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">Log In</button>
+            <button type="button" class="btn btn-secondary" id="cancelAdminLoginBtn">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ADMIN PANEL MODAL -->
+    <div class="modal" id="adminPanelModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Admin Panel</h2>
+          <button class="close-btn" id="closeAdminPanelModal">×</button>
+        </div>
+        <div>
+          <h3 style="margin-top: 0;">Manage User Passwords</h3>
+          <p style="color: var(--text-muted); font-size: 0.95em;">
+            You can reset any user's password. New passwords will replace old ones.
+          </p>
+          <div id="adminUsersList" style="margin-top: 15px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- Firebase (modular SDK via CDN) + App Logic -->
+    <script type="module">
+      // Firebase SDKs
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
+      import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-analytics.js';
+      import {
+        getFirestore,
+        collection,
+        doc,
+        addDoc,
+        setDoc,
+        getDoc,
+        getDocs,
+        updateDoc,
+        deleteDoc,
+        onSnapshot,
+        query,
+        where,
+        orderBy,
+        serverTimestamp,
+      } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js';
+
+      // Firebase Config
+      const firebaseConfig = {
+        apiKey: 'AIzaSyBqUndaGwyYdGEwWWCHrSkCtpgqIXEsgRg',
+        authDomain: 'robotics-after-school.firebaseapp.com',
+        projectId: 'robotics-after-school',
+        storageBucket: 'robotics-after-school.firebasestorage.app',
+        messagingSenderId: '45712342612',
+        appId: '1:45712342612:web:16e0bca3f34f61a644f7c1',
+        measurementId: 'G-TQBZT9G6Z5',
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      getAnalytics(app);
+      const db = getFirestore(app);
+
+      // --- TEAM (static roster for UI selection; users live in Firestore) ---
+      const TEAM_MEMBERS = [
+        { name: 'Salva', role: 'Team Member', id: 'salva' },
+        { name: 'Alex', role: 'Team Member', id: 'alex' },
+        { name: 'Andrew', role: 'Team Member', id: 'andrew' },
+        { name: 'Mason', role: 'Team Member', id: 'mason' },
+        { name: 'Ian', role: 'Team Member', id: 'ian' },
+        { name: 'Hundon', role: 'Team Member', id: 'hundon' },
+        { name: 'Will', role: 'Team Member', id: 'will' },
+        { name: 'Theodore', role: 'Team Member', id: 'theodore' },
+        { name: 'James', role: 'Team Member', id: 'james' },
+        { name: 'Jake', role: 'Team Member', id: 'jake' },
+        { name: 'Elliot', role: 'Team Member', id: 'elliot' },
+      ];
+
+      const ADMIN_USER = { id: 'admin', username: 'admin', displayName: 'Admin' };
+
+      // --- APP STATE ---
+      let currentUser = null; // { id, person_name, role, isAdmin, theme }
+      let selectedMemberForLogin = null;
+      let jobFilters = { status: 'all', priority: 'all', category: 'all' };
+      let editingJob = null;
+
+      // Live collections cached in memory for rendering
+      let liveCheckIns = [];
+      let liveJobs = [];
+      let liveAnnouncements = [];
+      let liveUsers = {}; // { userId: {id, displayName, role, passwordHash, theme} }
+
+      const selectedDate = new Date().toISOString().split('T')[0];
+
+      // --- UTILS ---
+      async function hashPassword(password) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+      }
+
+      function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+      }
+
+      // --- FIRESTORE: USERS ---
+      async function ensureUsersSeed() {
+        // Seed user docs for each TEAM_MEMBER if missing
+        const usersCol = collection(db, 'users');
+        for (const member of TEAM_MEMBERS) {
+          const ref = doc(usersCol, member.id);
+          const snap = await getDoc(ref);
+          if (!snap.exists()) {
+            await setDoc(ref, {
+              id: member.id,
+              displayName: member.name,
+              role: member.role,
+              passwordHash: null,
+              theme: 'default',
+              createdAt: serverTimestamp(),
+            });
+          }
+        }
+        // Ensure admin exists with a default password (change in production)
+        const adminRef = doc(usersCol, ADMIN_USER.id);
+        const adminSnap = await getDoc(adminRef);
+        if (!adminSnap.exists()) {
+          await setDoc(adminRef, {
+            id: ADMIN_USER.id,
+            displayName: ADMIN_USER.displayName,
+            role: 'Admin',
+            passwordHash: await hashPassword('69310fll03'),
+            theme: 'default',
+            createdAt: serverTimestamp(),
+          });
+        }
+      }
+
+      function listenToUsers() {
+        const usersCol = collection(db, 'users');
+        return onSnapshot(usersCol, (snap) => {
+          const map = {};
+          snap.forEach((d) => (map[d.id] = d.data()));
+          liveUsers = map;
+          // Update admin panel list if open
+          if (currentUser?.isAdmin) renderAdminUsersList();
+        });
+      }
+
+      async function setUserTheme(userId, theme) {
+        const ref = doc(db, 'users', userId);
+        await updateDoc(ref, { theme });
+      }
+
+      async function resetUserPassword(userId, newPassword) {
+        const ref = doc(db, 'users', userId);
+        await updateDoc(ref, { passwordHash: await hashPassword(newPassword) });
+      }
+
+      // --- AUTH UI ---
+      function renderMemberSelectGrid() {
+        const grid = document.getElementById('memberSelectGrid');
+        grid.innerHTML = TEAM_MEMBERS.map(
+          (member) => `
+            <div class="member-select-card" data-member-id="${member.id}">
+              <div class="member-avatar-large">${member.name[0]}</div>
+              <div class="member-select-info">
+                <h3>${member.name}</h3>
+                <p>${member.role}</p>
+              </div>
+            </div>
+          `
+        ).join('');
+
+        document.querySelectorAll('.member-select-card').forEach((card) => {
+          card.addEventListener('click', () => {
+            const memberId = card.dataset.memberId;
+            const member = TEAM_MEMBERS.find((m) => m.id === memberId);
+            selectedMemberForLogin = member;
+            document.getElementById('selectedMemberName').value = member.name;
+          });
+        });
+      }
+
+      async function handleUserLogin(e) {
+        e.preventDefault();
+        const passwordInput = document.getElementById('loginPassword');
+        if (!selectedMemberForLogin) return showToast('Select your profile first.');
+        const usersStore = liveUsers;
+        const userRecord = usersStore[selectedMemberForLogin.id];
+        if (!userRecord || !userRecord.passwordHash) return showToast('No password set yet. Ask admin to set one.');
+
+        const hash = await hashPassword(passwordInput.value);
+        if (hash !== userRecord.passwordHash) return showToast('Incorrect password.');
+
+        loginUser({
+          id: selectedMemberForLogin.id,
+          person_name: selectedMemberForLogin.name,
+          role: selectedMemberForLogin.role,
+          isAdmin: false,
+          theme: userRecord.theme || 'default',
+        });
+
+        passwordInput.value = '';
+        document.getElementById('selectedMemberName').value = '';
+        selectedMemberForLogin = null;
+      }
+
+      async function handleAdminLogin(e) {
+        e.preventDefault();
+        const username = document.getElementById('adminUsername').value.trim();
+        const password = document.getElementById('adminPassword').value;
+        const adminRecord = liveUsers[ADMIN_USER.id];
+        if (!adminRecord) return showToast('Admin user missing.');
+        const hash = await hashPassword(password);
+        if (username !== 'admin' || hash !== adminRecord.passwordHash) return showToast('Invalid admin credentials.');
+
+        loginUser({
+          id: ADMIN_USER.id,
+          person_name: ADMIN_USER.displayName,
+          role: 'Admin',
+          isAdmin: true,
+          theme: adminRecord.theme || 'default',
+        });
+
+        document.getElementById('adminPassword').value = '';
+        closeAdminLoginModal();
+      }
+
+      function loginUser(userInfo) {
+        currentUser = {
+          id: userInfo.id,
+          person_name: userInfo.person_name,
+          role: userInfo.role,
+          isAdmin: !!userInfo.isAdmin,
+        };
+
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'flex';
+        document.getElementById('userName').textContent = userInfo.person_name;
+        document.getElementById('userAvatar').textContent = userInfo.person_name[0].toUpperCase();
+
+        populateAssignPeopleList();
+        renderAll();
+        applyTheme(userInfo.theme || 'default');
+
+        const adminBtn = document.getElementById('adminPanelBtn');
+        if (adminBtn) adminBtn.style.display = currentUser.isAdmin ? 'inline-flex' : 'none';
+
+        showToast(`Welcome, ${userInfo.person_name}! 👋`);
+      }
+
+      function handleLogout() {
+        currentUser = null;
+        document.getElementById('mainApp').style.display = 'none';
+        document.getElementById('authScreen').style.display = 'flex';
+        jobFilters = { status: 'all', priority: 'all', category: 'all' };
+        const adminBtn = document.getElementById('adminPanelBtn');
+        if (adminBtn) adminBtn.style.display = 'none';
+        showToast('Signed out successfully');
+      }
+
+      // --- THEME ---
+      function applyTheme(theme) {
+        document.body.classList.remove('light-theme', 'dark-theme');
+        if (theme === 'light') document.body.classList.add('light-theme');
+        else if (theme === 'dark') document.body.classList.add('dark-theme');
+        const themeSelect = document.getElementById('themeSelect');
+        if (themeSelect) themeSelect.value = theme || 'default';
+        if (currentUser) setUserTheme(currentUser.id, theme).catch(() => {});
+      }
+
+      // --- NAV ---
+      function setupNavigation() {
+        document.querySelectorAll('.nav-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const page = btn.dataset.page;
+            switchPage(page);
+          });
+        });
+      }
+
+      function switchPage(page) {
+        document.querySelectorAll('.page').forEach((p) => p.classList.remove('active'));
+        document.getElementById(page).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach((btn) => btn.classList.remove('active'));
+        const btn = document.querySelector(`[data-page="${page}"]`);
+        if (btn) btn.classList.add('active');
+      }
+
+      function setupThemeSelector() {
+        const themeSelect = document.getElementById('themeSelect');
+        if (!themeSelect) return;
+        themeSelect.addEventListener('change', (e) => {
+          applyTheme(e.target.value);
+          showToast(`Theme set to ${e.target.value}`);
+        });
+      }
+
+      // --- ASSIGN PEOPLE LIST ---
+      function populateAssignPeopleList() {
+        const container = document.getElementById('assignPeopleList');
+        container.innerHTML = TEAM_MEMBERS.map(
+          (member) => `
+            <div class="checkbox-item">
+              <input type="checkbox" id="assign_${member.id}" value="${member.id}">
+              <label for="assign_${member.id}">${member.name}</label>
+            </div>
+          `
+        ).join('');
+      }
+
+      // --- LISTENERS: Check-ins, Jobs, Announcements (real-time) ---
+      function listenToCheckIns() {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const q = query(collection(db, 'checkIns'), where('date', '==', todayStr), orderBy('createdAt', 'desc'));
+        return onSnapshot(q, (snap) => {
+          liveCheckIns = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+          renderDashboard();
+          renderCheckIns();
+        });
+      }
+
+      function listenToJobs() {
+        const jobsCol = collection(db, 'jobs');
+        const q = query(jobsCol, orderBy('createdAt', 'desc'));
+        return onSnapshot(q, (snap) => {
+          liveJobs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+          renderDashboard();
+          renderJobs();
+        });
+      }
+
+      function listenToAnnouncements() {
+        const annsCol = collection(db, 'announcements');
+        const q = query(annsCol, orderBy('createdAt', 'desc'));
+        return onSnapshot(q, (snap) => {
+          liveAnnouncements = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+          renderAnnouncements();
+        });
+      }
+
+      // --- RENDERERS ---
+      function renderDashboard() {
+        const checkIns = liveCheckIns;
+        const jobs = liveJobs;
+        const completedJobs = jobs.filter((j) => j.status === 'Done');
+        const activeJobs = jobs.filter((j) => j.status !== 'Done');
+
+        document.getElementById('statCheckedIn').textContent = checkIns.length;
+        document.getElementById('statActiveJobs').textContent = activeJobs.length;
+        document.getElementById('statCompleted').textContent = completedJobs.length;
+
+        const recentCheckIns = document.getElementById('recentCheckIns');
+        if (checkIns.length === 0) {
+          recentCheckIns.innerHTML = `
+            <div class="empty-state">
+              <h3>No check-ins yet today</h3>
+              <p>Be the first to check in!</p>
+            </div>
+          `;
+        } else {
+          recentCheckIns.innerHTML = checkIns.slice(0, 5)
+            .map((checkIn) => {
+              const time = checkIn.createdAt?.toDate
+                ? checkIn.createdAt.toDate().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+                : new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+              return `
+                <div class="check-in-card">
+                  <div class="check-in-info">
+                    <div class="avatar">${checkIn.person_name[0]}</div>
+                    <div class="check-in-details">
+                      <h3>${checkIn.person_name}</h3>
+                      <p>${checkIn.activity} • Leaving at ${checkIn.time_slot}</p>
+                    </div>
+                  </div>
+                  <div class="check-in-meta">${time}</div>
+                </div>
+              `;
+            })
+            .join('');
+        }
+
+        const priorityJobsList = document.getElementById('priorityJobsList');
+        const highPriorityJobs = jobs.filter((j) => j.priority === 'High' && j.status !== 'Done');
+        if (highPriorityJobs.length === 0) {
+          priorityJobsList.innerHTML = `
+            <div class="empty-state">
+              <h3>No high priority jobs</h3>
+              <p>Create jobs to organize team work</p>
+            </div>
+          `;
+        } else {
+          priorityJobsList.innerHTML = `<div class="jobs-grid">${highPriorityJobs
+            .slice(0, 3)
+            .map((job) => createJobCardHTML(job))
+            .join('')}</div>`;
+
+          document.querySelectorAll('#priorityJobsList .job-card').forEach((card) => {
+            card.addEventListener('click', () => {
+              const jobId = card.dataset.jobId;
+              const job = liveJobs.find((j) => j.id === jobId);
+              if (job) openJobModal(job);
+            });
+          });
+        }
+      }
+
+      function createJobCardHTML(job) {
+        const assignedIds = job.assigned_people ? job.assigned_people.split(',').filter(Boolean) : [];
+        const assignedNames = assignedIds
+          .map((id) => {
+            const member = TEAM_MEMBERS.find((m) => m.id === id);
+            return member ? member.name : '';
+          })
+          .filter(Boolean);
+
+        const statusClass =
+          job.status === 'To Do' ? 'status-todo' : job.status === 'In Progress' ? 'status-progress' : 'status-done';
+
+        const priorityClass =
+          job.priority === 'High' ? 'priority-high' : job.priority === 'Medium' ? 'priority-medium' : 'priority-low';
+
+        return `
+          <div class="job-card" data-job-id="${job.id}">
+            <div class="job-header">
+              <h3 class="job-title">${job.activity}</h3>
+              <span class="job-status ${statusClass}">${job.status}</span>
+            </div>
+            <span class="job-priority ${priorityClass}">${job.priority} Priority</span>
+            <span class="job-category">${job.category || 'Other'}</span>
+            <div class="job-description">${job.notes || 'No description'}</div>
+            <div class="job-progress">
+              <div class="progress-label">Progress: ${job.progress || 0}%</div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${job.progress || 0}%"></div>
+              </div>
+            </div>
+            <div class="assigned-people">
+              <div class="assigned-label">ASSIGNED TO:</div>
+              <div class="people-badges">
+                ${
+                  assignedNames.length > 0
+                    ? assignedNames.map((name) => `<span class="person-badge">${name}</span>`).join('')
+                    : '<span style="color: #999;">No one assigned</span>'
+                }
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderCheckIns() {
+        const container = document.getElementById('todayCheckIns');
+        const checkIns = liveCheckIns;
+        if (checkIns.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <h3>No check-ins yet</h3>
+              <p>Check in to let everyone know you're here!</p>
+            </div>
+          `;
+        } else {
+          container.innerHTML = `<div class="check-in-list">${checkIns
+            .map((checkIn) => {
+              const time = checkIn.createdAt?.toDate
+                ? checkIn.createdAt.toDate().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+                : new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+              return `
+                <div class="check-in-card">
+                  <div class="check-in-info">
+                    <div class="avatar">${checkIn.person_name[0]}</div>
+                    <div class="check-in-details">
+                      <h3>${checkIn.person_name}</h3>
+                      <p>${checkIn.activity} • Leaving at ${checkIn.time_slot}</p>
+                      ${checkIn.notes ? `<p style="margin-top: 5px; font-style: italic;">"${checkIn.notes}"</p>` : ''}
+                    </div>
+                  </div>
+                  <div class="check-in-meta">Checked in at ${time}</div>
+                </div>
+              `;
+            })
+            .join('')}</div>`;
+        }
+      }
+
+      function renderJobs() {
+        const jobs = liveJobs;
+        const filteredJobs = jobs.filter((job) => {
+          const statusMatch = jobFilters.status === 'all' || job.status === jobFilters.status;
+          const priorityMatch = jobFilters.priority === 'all' || job.priority === jobFilters.priority;
+          const categoryMatch = jobFilters.category === 'all' || (job.category || 'Other') === jobFilters.category;
+          return statusMatch && priorityMatch && categoryMatch;
+        });
+
+        const container = document.getElementById('jobsContainer');
+
+        if (filteredJobs.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state" style="grid-column: 1 / -1;">
+              <h3>No jobs match filters</h3>
+              <p>Try adjusting your filters or create a new job</p>
+            </div>
+          `;
+        } else {
+          container.innerHTML = filteredJobs.map((job) => createJobCardHTML(job)).join('');
+
+          document.querySelectorAll('.job-card').forEach((card) => {
+            card.addEventListener('click', () => {
+              const jobId = card.dataset.jobId;
+              const job = liveJobs.find((j) => j.id === jobId);
+              if (job) openJobModal(job);
+            });
+          });
+        }
+      }
+
+      function renderTeam() {
+        const container = document.getElementById('teamContainer');
+        container.innerHTML = TEAM_MEMBERS.map(
+          (member) => `
+            <div class="member-card">
+              <div class="member-avatar">${member.name[0].toUpperCase()}</div>
+              <div class="member-info">
+                <h3 class="member-name">${member.name}</h3>
+                <span class="member-role">${member.role}</span>
+              </div>
+            </div>
+          `
+        ).join('');
+      }
+
+      function renderAnnouncements() {
+        const announcements = liveAnnouncements;
+        const container = document.getElementById('announcementsContainer');
+
+        if (announcements.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <h3>No announcements yet</h3>
+              <p>Create an announcement to share important updates</p>
+            </div>
+          `;
+        } else {
+          container.innerHTML = announcements
+            .map((ann) => {
+              const date = ann.createdAt?.toDate
+                ? ann.createdAt.toDate().toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                  })
+                : new Date().toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                  });
+              return `
+                <div class="check-in-card" style="margin-bottom: 2%;">
+                  <div class="check-in-info">
+                    <div class="avatar">${ann.person_name[0]}</div>
+                    <div class="check-in-details">
+                      <h3>${ann.activity}</h3>
+                      <p style="margin-top: 1%; line-height: 1.5;">${ann.notes}</p>
+                      <p style="margin-top: 1%; color: #888; font-size: 0.85em;">
+                        Posted by ${ann.person_name} on ${date}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              `;
+            })
+            .join('');
+        }
+      }
+
+      function renderAll() {
+        renderDashboard();
+        renderCheckIns();
+        renderJobs();
+        renderTeam();
+        renderAnnouncements();
+      }
+
+      // --- FORM HANDLERS (Firestore writes) ---
+      async function handleCheckIn(e) {
+        e.preventDefault();
+        if (!currentUser) return;
+
+        const activity = document.getElementById('checkInActivity').value;
+        const timeSlot = document.getElementById('checkInTime').value;
+        const notes = document.getElementById('checkInNotes').value;
+
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Checking in...';
+
+        await addDoc(collection(db, 'checkIns'), {
+          type: 'check-in',
+          person_id: currentUser.id,
+          person_name: currentUser.person_name,
+          activity,
+          time_slot: timeSlot,
+          date: selectedDate,
+          notes,
+          createdAt: serverTimestamp(),
+        });
+
+        submitBtn.disabled = false;
+        submitBtn.textContent = '✓ Check In Now';
+        showToast('Checked in successfully! 🎉');
+        document.getElementById('checkInForm').reset();
+        switchPage('dashboard');
+      }
+
+      function openJobModal(job = null) {
+        if (!currentUser) return;
+        editingJob = job;
+        const modal = document.getElementById('jobModal');
+        const title = document.getElementById('jobModalTitle');
+        const deleteSection = document.getElementById('deleteJobSection');
+
+        if (job) {
+          title.textContent = 'Edit Job';
+          document.getElementById('jobTitle').value = job.activity;
+          document.getElementById('jobDescription').value = job.notes || '';
+          document.getElementById('jobStatus').value = job.status || 'To Do';
+          document.getElementById('jobPriority').value = job.priority || 'Medium';
+          document.getElementById('jobCategory').value = job.category || 'Robot';
+          document.getElementById('jobProgress').value = job.progress || 0;
+          document.getElementById('jobDueDate').value = job.due_date || '';
+
+          const assignedIds = job.assigned_people ? job.assigned_people.split(',') : [];
+          document.querySelectorAll('#assignPeopleList input[type="checkbox"]').forEach((cb) => {
+            cb.checked = assignedIds.includes(cb.value);
+          });
+
+          deleteSection.style.display = 'block';
+        } else {
+          title.textContent = 'Create New Job';
+          document.getElementById('jobForm').reset();
+          document.getElementById('jobPriority').value = 'Medium';
+          document.getElementById('jobCategory').value = 'Robot';
+          document.getElementById('jobProgress').value = 0;
+          document.querySelectorAll('#assignPeopleList input[type="checkbox"]').forEach((cb) => (cb.checked = false));
+          deleteSection.style.display = 'none';
+        }
+
+        modal.classList.add('show');
+      }
+
+      function closeJobModal() {
+        document.getElementById('jobModal').classList.remove('show');
+        editingJob = null;
+        document.getElementById('jobForm').reset();
+      }
+
+      async function handleJobSave(e) {
+        e.preventDefault();
+
+        const title = document.getElementById('jobTitle').value;
+        const description = document.getElementById('jobDescription').value;
+        const status = document.getElementById('jobStatus').value;
+        const priority = document.getElementById('jobPriority').value;
+        const category = document.getElementById('jobCategory').value;
+        const progress = Number(document.getElementById('jobProgress').value ?? 0);
+        const dueDate = document.getElementById('jobDueDate').value;
+
+        const assignedPeople = Array.from(
+          document.querySelectorAll('#assignPeopleList input[type="checkbox"]:checked')
+        )
+          .map((cb) => cb.value)
+          .join(',');
+
+        const saveBtn = document.getElementById('saveJobBtn');
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+
+        const payload = {
+          type: 'job',
+          activity: title,
+          notes: description,
+          status,
+          priority,
+          category,
+          progress,
+          due_date: dueDate || null,
+          assigned_people: assignedPeople,
+          date: selectedDate,
+          person_id: currentUser.id,
+          person_name: currentUser.person_name,
+        };
+
+        if (editingJob && editingJob.id) {
+          const ref = doc(db, 'jobs', editingJob.id);
+          await updateDoc(ref, payload);
+          showToast('Job updated! ✓');
+        } else {
+          await addDoc(collection(db, 'jobs'), {
+            ...payload,
+            createdAt: serverTimestamp(),
+          });
+          showToast('Job created! ✓');
+        }
+
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 Save Job';
+        closeJobModal();
+      }
+
+      async function handleJobDelete() {
+        if (!editingJob || !editingJob.id) return;
+
+        const deleteBtn = document.getElementById('deleteJobBtn');
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = 'Deleting...';
+
+        await deleteDoc(doc(db, 'jobs', editingJob.id));
+
+        deleteBtn.disabled = false;
+        deleteBtn.textContent = '🗑️ Delete Job';
+
+        showToast('Job deleted');
+        closeJobModal();
+      }
+
+      function openAnnouncementModal() {
+        if (!currentUser) return;
+        document.getElementById('announcementModal').classList.add('show');
+      }
+
+      function closeAnnouncementModal() {
+        document.getElementById('announcementModal').classList.remove('show');
+        document.getElementById('announcementForm').reset();
+      }
+
+      async function handleAnnouncementSubmit(e) {
+        e.preventDefault();
+        if (!currentUser) return;
+
+        const title = document.getElementById('announcementTitle').value;
+        const message = document.getElementById('announcementMessage').value;
+
+        await addDoc(collection(db, 'announcements'), {
+          type: 'announcement',
+          person_id: currentUser.id,
+          person_name: currentUser.person_name,
+          activity: title,
+          notes: message,
+          createdAt: serverTimestamp(),
+          date: selectedDate,
+        });
+
+        showToast('Announcement posted! 📢');
+        closeAnnouncementModal();
+      }
+
+      // --- QUICK ACTIONS ---
+      function setupQuickActions() {
+        document.querySelectorAll('.quick-action-card').forEach((card) => {
+          card.addEventListener('click', () => {
+            const action = card.dataset.action;
+            if (action === 'check-in') switchPage('check-in');
+            else if (action === 'create-job') openJobModal();
+            else if (action === 'view-team') switchPage('team');
+          });
+        });
+      }
+
+      // --- FILTERS ---
+      function setupFilters() {
+        document.querySelectorAll('.filter-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const filterType = btn.dataset.filter;
+            const filterValue = btn.dataset.value;
+            document.querySelectorAll(`[data-filter="${filterType}"]`).forEach((b) => b.classList.remove('active'));
+            btn.classList.add('active');
+            jobFilters[filterType] = filterValue;
+            renderJobs();
+          });
+        });
+      }
+
+      // --- ADMIN MODALS ---
+      function openAdminLoginModal() {
+        document.getElementById('adminLoginModal').classList.add('show');
+      }
+      function closeAdminLoginModal() {
+        document.getElementById('adminLoginModal').classList.remove('show');
+        document.getElementById('adminLoginForm').reset();
+      }
+
+      function openAdminPanelModal() {
+        if (!currentUser || !currentUser.isAdmin) {
+          showToast('Admin only.');
+          return;
+        }
+        renderAdminUsersList();
+        document.getElementById('adminPanelModal').classList.add('show');
+      }
+      function closeAdminPanelModal() {
+        document.getElementById('adminPanelModal').classList.remove('show');
+        document.getElementById('adminUsersList').innerHTML = '';
+      }
+
+      function renderAdminUsersList() {
+        const container = document.getElementById('adminUsersList');
+        const users = Object.values(liveUsers).filter((u) => u.id !== 'admin');
+
+        if (users.length === 0) {
+          container.innerHTML = `<p>No users found.</p>`;
+          return;
+        }
+
+        container.innerHTML = users
+          .map(
+            (u) => `
+              <div style="border:1px solid var(--card-border);border-radius:12px;padding:10px 12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                <div>
+                  <div style="font-weight:700;">${u.displayName}</div>
+                  <div style="font-size:0.85em;color:var(--text-muted);">${u.id} • ${u.role}</div>
+                </div>
+                <form data-reset-user-id="${u.id}" style="display:flex;align-items:center;gap:8px;">
+                  <input type="password" placeholder="New password" required style="padding:8px 10px;border-radius:8px;border:1px solid #ddd;min-width:140px;">
+                  <button type="submit" class="btn btn-primary" style="padding:8px 12px;font-size:0.9em;">Reset</button>
+                </form>
+              </div>
+            `
+          )
+          .join('');
+
+        container.querySelectorAll('form[data-reset-user-id]').forEach((form) => {
+          form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userId = form.getAttribute('data-reset-user-id');
+            const input = form.querySelector('input[type="password"]');
+            const newPassword = input.value;
+            if (!newPassword) return;
+            await resetUserPassword(userId, newPassword);
+            input.value = '';
+            showToast(`Password reset for ${liveUsers[userId]?.displayName || userId}`);
+          });
+        });
+      }
+
+      // --- EVENT LISTENERS ---
+      function setupEventListeners() {
+        document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+        document.getElementById('checkInForm').addEventListener('submit', handleCheckIn);
+        document.getElementById('createJobBtn').addEventListener('click', () => openJobModal());
+        document.getElementById('closeJobModal').addEventListener('click', closeJobModal);
+        document.getElementById('cancelJobBtn').addEventListener('click', closeJobModal);
+        document.getElementById('jobForm').addEventListener('submit', handleJobSave);
+        document.getElementById('deleteJobBtn').addEventListener('click', handleJobDelete);
+        document.getElementById('createAnnouncementBtn').addEventListener('click', openAnnouncementModal);
+        document.getElementById('closeAnnouncementModal').addEventListener('click', closeAnnouncementModal);
+        document.getElementById('cancelAnnouncementBtn').addEventListener('click', closeAnnouncementModal);
+        document.getElementById('announcementForm').addEventListener('submit', handleAnnouncementSubmit);
+
+        document.getElementById('passwordForm').addEventListener('submit', handleUserLogin);
+
+        document.getElementById('adminLoginBtn').addEventListener('click', openAdminLoginModal);
+        document.getElementById('closeAdminLoginModal').addEventListener('click', closeAdminLoginModal);
+        document.getElementById('cancelAdminLoginBtn').addEventListener('click', closeAdminLoginModal);
+
+        document.getElementById('adminPanelBtn').addEventListener('click', openAdminPanelModal);
+        document.getElementById('closeAdminPanelModal').addEventListener('click', closeAdminPanelModal);
+      }
+
+      function setupQuickUI() {
+        setupNavigation();
+        setupEventListeners();
+        setupQuickActions();
+        setupThemeSelector();
+        setupFilters();
+      }
+
+      // --- INIT ---
+      async function initApp() {
+        renderMemberSelectGrid();
+        setupQuickUI();
+        await ensureUsersSeed();
+
+        // Firestore live listeners
+        const unsubUsers = listenToUsers();
+        const unsubCheckIns = listenToCheckIns();
+        const unsubJobs = listenToJobs();
+        const unsubAnnouncements = listenToAnnouncements();
+
+        // Clean-up if needed (you can add unload handler)
+        // window.addEventListener('beforeunload', () => {
+        //   unsubUsers(); unsubCheckIns(); unsubJobs(); unsubAnnouncements();
+        // });
+      }
+
+      initApp();
+    </script>
+  </body>
+</html>
